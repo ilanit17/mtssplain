@@ -121,7 +121,7 @@ const FileUploadAnalyzer: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center w-full">
+                    <div className="flex flex-col items-center justify-center w-full gap-4">
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                 <svg className="w-8 h-8 mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,13 +133,49 @@ const FileUploadAnalyzer: React.FC = () => {
                             <input
                                 type="file"
                                 className="hidden"
-                                accept=".xlsx,.xls,.csv"
+                                accept=".xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv,text/csv,text/plain"
                                 onChange={(e) => {
                                     const file = e.target.files?.[0];
                                     if (file) handleFileUpload(file);
                                 }}
                             />
                         </label>
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                            <button
+                                type="button"
+                                className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                                onClick={() => {
+                                    // Generate and download a minimal CSV template
+                                    const headers = ['שם בית הספר','מנהל/ת','מספר תלמידים','רמת ליווי'];
+                                    const csvContent = `\uFEFF${headers.join(',')}\n`;
+                                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                                    const link = document.createElement('a');
+                                    link.href = URL.createObjectURL(blob);
+                                    link.download = 'תבנית_נתונים.csv';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }}
+                            >
+                                הורד תבנית CSV
+                            </button>
+                            <button
+                                type="button"
+                                className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                                onClick={() => {
+                                    // Generate and download a minimal Excel template
+                                    import('xlsx').then(xlsx => {
+                                        const headers = [['שם בית הספר','מנהל/ת','מספר תלמידים','רמת ליווי']];
+                                        const ws = xlsx.utils.aoa_to_sheet(headers);
+                                        const wb = xlsx.utils.book_new();
+                                        xlsx.utils.book_append_sheet(wb, ws, 'תבנית');
+                                        xlsx.writeFile(wb, 'תבנית_נתונים.xlsx');
+                                    });
+                                }}
+                            >
+                                הורד תבנית Excel
+                            </button>
+                        </div>
                     </div>
                 )}
                  <div className="mt-8 text-center">

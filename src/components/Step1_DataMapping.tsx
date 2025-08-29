@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useRef } from 'react';
+import * as xlsx from 'xlsx';
 import type { School, Score, SupportLevel } from '../types';
 import { ALL_SCORE_FIELDS, HIERARCHICAL_CATEGORIES } from '../constants';
 import ExportControls from './ExportControls';
@@ -156,6 +157,37 @@ const Step1_DataMapping: React.FC<Step1Props> = ({ schools, setSchools, onComple
         document.body.removeChild(link);
     }, [schools]);
 
+    const handleExportExcel = useCallback(() => {
+        const baseHeaders = ['שם בית הספר', 'מנהל/ת', 'מספר תלמידים', 'רמת ליווי'];
+        const scoreHeaders = ALL_SCORE_FIELDS.map(field => {
+            for (const cat of HIERARCHICAL_CATEGORIES) {
+                for (const subCat of cat.subCategories) {
+                    const metric = subCat.metrics.find(m => m.key === field);
+                    if (metric) {
+                        return `${cat.name} - ${subCat.name} - ${metric.name}`;
+                    }
+                }
+            }
+            return field;
+        });
+        const finalHeaders = [...baseHeaders, ...scoreHeaders, 'הערות'];
+
+        const rows = schools.map(school => [
+            school.name,
+            school.principal,
+            school.students,
+            school.supportLevel,
+            ...ALL_SCORE_FIELDS.map(field => school[field]),
+            school.notes
+        ]);
+
+        const worksheetData = [finalHeaders, ...rows];
+        const ws = xlsx.utils.aoa_to_sheet(worksheetData);
+        const wb = xlsx.utils.book_new();
+        xlsx.utils.book_append_sheet(wb, ws, 'נתונים');
+        xlsx.writeFile(wb, 'טבלת_נתונים_גולמית.xlsx');
+    }, [schools]);
+
     return (
         <div className="p-4 md:p-8">
             <header className="text-center mb-6">
@@ -218,6 +250,7 @@ const Step1_DataMapping: React.FC<Step1Props> = ({ schools, setSchools, onComple
                     targetRef={tableContainerRef} 
                     reportName="טבלת-נתונים-גולמית"
                     onExportCSV={handleExportCSV}
+                    onExportExcel={handleExportExcel}
                  />
                 <div className="flex-grow text-center">
                     <p className="text-lg font-semibold text-gray-700">
