@@ -1,0 +1,5 @@
+{
+  "name": "MTSS Intervention Planner",
+  "description": "An application to upload school data, analyze it, and generate intervention plans.",
+  "requestFramePermissions": []
+}
