@@ -15,6 +15,7 @@ interface ExportControlsProps {
   targetRef: React.RefObject<HTMLElement>;
   reportName: string;
   onExportCSV?: () => void;
+  onExportExcel?: () => void;
   onExportHTML?: () => void;
   onExportHTMLReport2?: () => void;
 }
@@ -23,6 +24,7 @@ const ExportControls: React.FC<ExportControlsProps> = ({
     targetRef, 
     reportName, 
     onExportCSV,
+    onExportExcel,
     onExportHTML,
     onExportHTMLReport2
 }) => {
@@ -130,6 +132,11 @@ const ExportControls: React.FC<ExportControlsProps> = ({
                         <button onClick={() => exportAs('png')} className="w-full text-right block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                             🖼️ הורדה כ-PNG
                         </button>
+                        {onExportExcel && (
+                            <button onClick={() => handleAction(onExportExcel)} className="w-full text-right block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                📘 הורדה כ-Excel (לעריכה)
+                            </button>
+                        )}
                          {onExportCSV && (
                             <button onClick={() => handleAction(onExportCSV)} className="w-full text-right block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                                 📊 הורדה כ-CSV (לעריכה)
